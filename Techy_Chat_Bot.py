@@ -30,7 +30,8 @@ def get_answer(user_question):
 
 # Example query
 user_query = "What services do you offer?"
-print("Bot:", get_answer(input()))
+print("Bot:", get_answer(user_query))
+
 
 
 from flask import Flask, request, jsonify
