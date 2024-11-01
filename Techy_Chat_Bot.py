@@ -1,7 +1,9 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
+from flask import Flask, request, jsonify
 import numpy as np
 
-# Training data
+app = Flask(__name__)
+
+# Existing questions and answers setup
 questions = [
     "What services does your company offer?",
     "How does your RPA service work?",
@@ -17,10 +19,12 @@ answers = [
     "The implementation time varies depending on the process, but most RPA solutions take a few weeks to design, test, and deploy."
 ]
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 # Convert questions to vectors
 vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(questions)
-from sklearn.metrics.pairwise import cosine_similarity
 
 def get_answer(user_question):
     user_question_vec = vectorizer.transform([user_question])
@@ -28,31 +32,17 @@ def get_answer(user_question):
     best_match_idx = np.argmax(similarity)
     return answers[best_match_idx]
 
-# Example query
-user_query = "What services do you offer?"
-print("Bot:", get_answer(user_query))
-
-
-
-from flask import Flask, request, jsonify
-import numpy as np
-
-app = Flask(__name__)
-
-@app.route("/ask", methods=["POST"])
-def ask():
-    user_question = request.json.get("question")
-    answer = get_answer(user_question)
-    return jsonify({"answer": answer})
-
-@app.route("/")
+# Update the "/" route to handle chatbot requests
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return "Chatbot API is up and running!"
-
+    if request.method == "POST":
+        user_question = request.json.get("question")
+        answer = get_answer(user_question)
+        return jsonify({"answer": answer})
+    else:
+        return "Chatbot API is up and running!"
 
 import os
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Render uses a PORT environment variable
     app.run(host="0.0.0.0", port=port)
-
