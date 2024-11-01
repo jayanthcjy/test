@@ -45,6 +45,11 @@ def ask():
     answer = get_answer(user_question)
     return jsonify({"answer": answer})
 
+@app.route("/")
+def home():
+    return "Chatbot API is up and running!"
+
+
 import os
 
 if __name__ == "__main__":
